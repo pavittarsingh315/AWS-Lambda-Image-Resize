@@ -15,12 +15,18 @@ const s3 = new aws.S3({
 });
 
 exports.handler = async (event) => {
+   const { Records } = event;
    try {
-      const bucket = await event.Records[0].s3.bucket.name;
-      const file = await event.Records[0].s3.object.key;
-      const height = 500;
-      const width = 500;
-      await resizeImage({ bucket, file, height, width }); // call this function with different widths and heights to get multiple sizes of the same image.
+      const arrayOfProms = Records.map(async (record) => {
+         const file = record.s3.object.key;
+         if (file.split("/")[0] !== "profilePics") return;
+         const bucket = record.s3.bucket.name;
+         await resizeImage({ bucket, file, height: 200, width: 200 }); // call this function with different widths and heights to get multiple sizes of the same image.
+         await resizeImage({ bucket, file, height: 1000, width: 1000 });
+         return;
+      });
+
+      await Promise.all(arrayOfProms);
 
       return { statusCode: 200 };
    } catch (e) {
@@ -40,5 +46,9 @@ const resizeImage = async ({ bucket, file, height, width }) => {
    const newFileName = `resized/profilePics/${width}x${height}/${fileName}`;
 
    await s3.putObject({ Bucket: bucket, Key: newFileName, Body: resizedObjectBuffer, ContentType: mime }).promise();
+
+   if(height === 1000 && width === 1000) {
+      await s3.deleteObject({Bucket: bucket, Key: file}).promise();
+   }
    return newFileName;
 };
