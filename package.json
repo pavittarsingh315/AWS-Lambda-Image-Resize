@@ -1,0 +1,15 @@
+{
+  "name": "image-resize-lambda",
+  "version": "1.0.0",
+  "description": "Lambda function to resize s3 images on upload",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Pavittar Singh",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "aws-sdk": "^2.989.0",
+    "jimp": "^0.16.1"
+  }
+}
