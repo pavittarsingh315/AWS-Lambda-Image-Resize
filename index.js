@@ -21,7 +21,7 @@ exports.handler = async (event) => {
          const file = record.s3.object.key;
          const bucket = record.s3.bucket.name;
          if (file.split("/")[0] === "profilePics") {
-            await resizeImage({ bucket, file, height: 300, width: 300, folderName: "profilePics" });
+            await resizeImage({ bucket, file, height: 500, width: 500, folderName: "profilePics" });
             return;
          }
          if(file.split("/")[0] === "postPics") {
