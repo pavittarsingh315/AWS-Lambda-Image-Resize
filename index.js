@@ -52,7 +52,7 @@ const resizeImage = async ({ bucket, file, height, width, folderName }) => {
 
    await s3.putObject({ Bucket: bucket, Key: newFileName, Body: resizedObjectBuffer, ContentType: mime }).promise();
 
-   if(height === 300 && width === 300) {
+   if(height === 500 && width === 500) {
       await s3.deleteObject({Bucket: bucket, Key: file}).promise();
    }
    return newFileName;
