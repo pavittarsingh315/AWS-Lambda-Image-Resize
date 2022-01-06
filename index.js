@@ -1,5 +1,5 @@
-const aws = require("aws-sdk");
-const jimp = require("jimp");
+import aws from "aws-sdk";
+import jimp from "jimp";
 
 const region = process.env.AWS_BUCKET_REGION;
 const accessKeyId = process.env.AWS_BUCKET_ACCESS_KEY_ID;
@@ -14,18 +14,20 @@ const s3 = new aws.S3({
    },
 });
 
-exports.handler = async (event) => {
+export const handler = async (event) => {
    const { Records } = event;
    try {
       const arrayOfProms = Records.map(async (record) => {
          const file = record.s3.object.key;
          const bucket = record.s3.bucket.name;
          if (file.split("/")[0] === "profilePics") {
-            await resizeImage({ bucket, file, height: 500, width: 500, folderName: "profilePics" });
+            await resizeImage({ bucket, file, height: 100, width: 100, folderName: "profilePics" });
+            await resizeImage({ bucket, file, height: 1000, width: 1000, folderName: "profilePics" });
             return;
-         }
-         if(file.split("/")[0] === "postPics") {
-            await resizeImage({ bucket, file, height: 1000, width: 1000, folderName: "postPics" });
+         } else if (file.split("/")[0] === "postThumbnail") {
+            await resizeImage({ bucket, file, height: 300, width: 300, folderName: "postThumbnail" });
+            return;
+         } else if (file.split("/")[0] === "postMedia") {
             return;
          }
          return;
@@ -52,8 +54,10 @@ const resizeImage = async ({ bucket, file, height, width, folderName }) => {
 
    await s3.putObject({ Bucket: bucket, Key: newFileName, Body: resizedObjectBuffer, ContentType: mime }).promise();
 
-   if(height === 500 && width === 500) {
-      await s3.deleteObject({Bucket: bucket, Key: file}).promise();
+   if (folderName === "profilePics" && height === 1000 && width === 1000) {
+      await s3.deleteObject({ Bucket: bucket, Key: file }).promise();
+   } else if (folderName === "postThumbnail" && height === 300 && width === 300) {
+      await s3.deleteObject({ Bucket: bucket, Key: file }).promise();
    }
    return newFileName;
 };
