@@ -24,10 +24,11 @@ export const handler = async (event) => {
             await resizeImage({ bucket, file, height: 100, width: 100, folderName: "profilePics" });
             await resizeImage({ bucket, file, height: 1000, width: 1000, folderName: "profilePics" });
             return;
-         } else if (file.split("/")[0] === "postThumbnail") {
-            await resizeImage({ bucket, file, height: 300, width: 300, folderName: "postThumbnail" });
+         } else if (file.split("/")[0] === "postThumbnails") {
+            await resizeImage({ bucket, file, height: 300, width: 300, folderName: "postThumbnails" });
             return;
-         } else if (file.split("/")[0] === "postMedia") {
+         } else if (file.split("/")[0] === "postImages") {
+            await resizeImage({ bucket, file, height: 1000, width: 1000, folderName: "postImages" });
             return;
          }
          return;
@@ -56,7 +57,9 @@ const resizeImage = async ({ bucket, file, height, width, folderName }) => {
 
    if (folderName === "profilePics" && height === 1000 && width === 1000) {
       await s3.deleteObject({ Bucket: bucket, Key: file }).promise();
-   } else if (folderName === "postThumbnail" && height === 300 && width === 300) {
+   } else if (folderName === "postThumbnails" && height === 300 && width === 300) {
+      await s3.deleteObject({ Bucket: bucket, Key: file }).promise();
+   } else if (folderName === "postImages" && height === 1000 && width === 1000) {
       await s3.deleteObject({ Bucket: bucket, Key: file }).promise();
    }
    return newFileName;
