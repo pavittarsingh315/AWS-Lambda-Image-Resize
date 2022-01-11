@@ -1,5 +1,6 @@
 import aws from "aws-sdk";
 import jimp from "jimp";
+import autorotate from "jpeg-autorotate";
 
 const region = process.env.AWS_BUCKET_REGION;
 const accessKeyId = process.env.AWS_BUCKET_ACCESS_KEY_ID;
@@ -45,7 +46,16 @@ export const handler = async (event) => {
 
 const resizeImage = async ({ bucket, file, height, width, folderName }) => {
    const objectBuffer = await s3.getObject({ Bucket: bucket, Key: file }).promise();
-   const jimpImg = await jimp.read(objectBuffer.Body);
+   let jimpImg;
+
+   try {
+      const { buffer } = await autorotate.rotate(objectBuffer.Body);
+      jimpImg = await jimp.read(buffer);
+   } catch (e) {
+      console.log(e);
+      jimpImg = await jimp.read(objectBuffer.Body);
+   }
+
    const mime = jimpImg.getMIME();
 
    const resizedObjectBuffer = await jimpImg.scaleToFit(width, height).getBufferAsync(mime);
